@@ -1,0 +1,28 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.env
+.venv
+env/
+venv/
+ENV/
+build/
+dist/
+*.spec
+
+# Data & Logs (Industrial rule: never push local data)
+data/storage/*.parquet
+data/storage/*.csv
+logs/*.log
+logs/*.txt
+
+# IDEs
+.vscode/
+.idea/
+.gemini/
+.agents/
+
+# OS
+.DS_Store
+Thumbs.db

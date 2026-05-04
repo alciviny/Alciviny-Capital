@@ -1,0 +1,27 @@
+# AlcivinyEdger - Universo de Ativos e Timeframes
+# Todos os tempos configurados para análise Multi-Timeframe
+
+assets:
+  - symbol: "WIN$" # Mini Índice
+    timeframes: 
+      - 1    # M1
+      - 5    # M5
+      - 15   # M15
+      - 30   # M30
+      - 60   # H1
+      - 1440 # D1 (Diário)
+      - 10080 # W1 (Semanal)
+      - 43200 # MN1 (Mensal)
+
+  - symbol: "WDO$" # Mini Dólar
+    timeframes: [1, 5, 15, 30, 60, 1440, 10080, 43200]
+
+  - symbol: "EURUSD"
+    timeframes: [1, 5, 15, 30, 60, 1440, 10080, 43200]
+
+  - symbol: "DI1$" # Juros Futuro (Contrato Contínuo)
+    timeframes: [1, 5, 15, 30, 60, 1440, 10080, 43200]
+
+settings:
+  initial_lookback: 50000 # Baixar bastante histórico inicial
+  storage_path: "data/storage"
