@@ -1,29 +1,33 @@
-# Configurações de Indicadores Técnicos
+# Configurações de Indicadores Técnicos - AlcivinyEdger
+# plot_type: 'overlay' (no gráfico de preços) ou 'oscillator' (painel separado)
 
-  ifr_200:
-    enabled: true
-    period: 200
-    grid_lines: [30, 70]
+ifr_200:
+  enabled: true
+  period: 200
+  grid_lines: [30, 70]
+  plot_type: "oscillator"
+  color: "#2962FF"
 
-  vwap_diario:
-    enabled: true
-    type: "vwap_atr"
-    period_type: "D"
-    atr_period: 300
-    multipliers: [1.5, 3.0, 6.0, 9.0]
+vwap_diario:
+  enabled: true
+  type: "vwap_atr"
+  plot_type: "overlay"
+  period_type: "D"
+  atr_period: 300
+  multipliers: [1.5, 3.0, 6.0, 9.0]
 
-  vwap_semanal:
-    enabled: true
-    type: "vwap_atr"
-    period_type: "W"
-    atr_period: 300
-    multipliers: [1.5, 3.0, 6.0, 9.0]
+vwap_semanal:
+  enabled: true
+  type: "vwap_atr"
+  plot_type: "overlay"
+  period_type: "W"
+  atr_period: 300
+  multipliers: [1.5, 3.0, 6.0, 9.0]
 
-  vwap_mensal:
-    enabled: true
-    type: "vwap_atr"
-    period_type: "M"
-    atr_period: 300
-    multipliers: [1.5, 3.0, 6.0, 9.0]
-
-# Você pode adicionar novos indicadores aqui no futuro
+vwap_mensal:
+  enabled: true
+  type: "vwap_atr"
+  plot_type: "overlay"
+  period_type: "M"
+  atr_period: 300
+  multipliers: [1.5, 3.0, 6.0, 9.0]
