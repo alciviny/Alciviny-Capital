@@ -1,28 +1,27 @@
-# Python
+# --- ALCIVINY EDGER GITIGNORE ---
+
+# Python Cache
 __pycache__/
-*.py[cod]
-*$py.class
-.env
-.venv
+*.pyc
+*.pyo
+*.pyd
+.Python
 env/
 venv/
-ENV/
-build/
-dist/
-*.spec
+.venv/
 
-# Data & Logs (Industrial rule: never push local data)
-data/storage/*.parquet
-data/storage/*.csv
-logs/*.log
-logs/*.txt
+# Data & Research (IMPORTANT: Do not version massive datasets)
+*.parquet
+src/research/experiments/
+src/backtest/reports/
+data_storage/
 
-# IDEs
+# Environment & Secrets
+.env
+*.log
+
+# Editor & System
 .vscode/
 .idea/
-.gemini/
-.agents/
-
-# OS
 .DS_Store
 Thumbs.db
