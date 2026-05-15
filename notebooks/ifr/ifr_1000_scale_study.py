@@ -75,7 +75,13 @@ class IFR1000ScaleResearch:
         for h in self.horizons:
             cols_to_check.extend([f'ret_{h}', f'vol_{h}', f'dir_{h}'])
             
+<<<<<<< HEAD
         df = df.dropna(subset=cols_to_check).reset_index(drop=True)
+=======
+        print(f"  {symbol} NaNs in critical columns:\n{df[cols_to_check].isna().sum()}")
+        df = df.dropna(subset=cols_to_check).reset_index(drop=True)
+        print(f"  {symbol} - After selective dropna: {len(df)} rows")
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         
         if len(df) == 0:
             print(f"  ERRO: {symbol} ficou vazio após processamento.")
@@ -88,6 +94,14 @@ class IFR1000ScaleResearch:
         is_end = int(n * 0.6)
         val_end = int(n * 0.8)
         
+<<<<<<< HEAD
+=======
+        # Garantir que o OOS seja posterior ao estudo anterior
+        # O estudo anterior tinha ~46387 candles.
+        # Se n for ~46577, os últimos 190 são novos.
+        # Vamos manter o 60/20/20 padrão mas monitorar o corte.
+        
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         return df.iloc[:is_end], df.iloc[is_end:val_end], df.iloc[val_end:]
 
     def compute_neff(self, series):
@@ -106,9 +120,17 @@ class IFR1000ScaleResearch:
         n1, n2 = len(x), len(y)
         if n1 == 0 or n2 == 0: return 0
         
+<<<<<<< HEAD
         x = np.asarray(x)
         y = np.asarray(y)
         
+=======
+        # Uso de matriz para cálculo vetorizado
+        x = np.asarray(x)
+        y = np.asarray(y)
+        
+        # Comparação cruzada
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         diff = np.expand_dims(x, 1) - np.expand_dims(y, 0)
         delta = np.sum(np.sign(diff)) / (n1 * n2)
         return delta
@@ -137,6 +159,10 @@ class IFR1000ScaleResearch:
         """Executa toda a Parte 3 e 4 (IS) com rigor total."""
         print(f"\n>>> Analisando IS para {symbol}...")
         
+<<<<<<< HEAD
+=======
+        # 3.1 Tabela Principal
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         stats_list = []
         for z in range(1, 8):
             z_df = df_is[df_is['zone'] == z]
@@ -150,13 +176,25 @@ class IFR1000ScaleResearch:
             stats_list.append(row)
         main_table = pd.DataFrame(stats_list)
         
+<<<<<<< HEAD
         kw_results = []
         for h in self.horizons:
             groups = [df_is[df_is['zone'] == z][f'ret_{h}'].values for z in range(1, 8)]
+=======
+        # 4.1 Kruskal-Wallis + FDR + Neff Correction (Simplificada via Neff médio)
+        kw_results = []
+        for h in self.horizons:
+            groups = [df_is[df_is['zone'] == z][f'ret_{h}'].values for z in range(1, 8)]
+            # Filtrar zonas com poucas amostras
+>>>>>>> 13985eb (sync: prepare local for remote pull)
             groups = [g for g in groups if len(g) > 20]
             
             if len(groups) > 1:
                 stat, p = stats.kruskal(*groups)
+<<<<<<< HEAD
+=======
+                # Permutação (H20 e H100 apenas para performance)
+>>>>>>> 13985eb (sync: prepare local for remote pull)
                 p_perm = np.nan
                 if h in [20, 100]:
                     _, p_perm = self.run_permutation_test(df_is, h, n_perms=200)
@@ -166,8 +204,15 @@ class IFR1000ScaleResearch:
             kw_results.append({'horizon': h, 'kw_stat': stat, 'p_val': p, 'p_perm': p_perm})
         
         kw_df = pd.DataFrame(kw_results)
+<<<<<<< HEAD
         _, kw_df['p_val_fdr'], _, _ = multipletests(kw_df['p_val'], method='fdr_bh')
         
+=======
+        # FDR (Benjamini-Hochberg)
+        _, kw_df['p_val_fdr'], _, _ = multipletests(kw_df['p_val'], method='fdr_bh')
+        
+        # 4.2 Gradiente (Spearman)
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         gradient_results = []
         for h in self.horizons:
             corr, p = stats.spearmanr(df_is['ifr'], df_is[f'ret_{h}'])
@@ -175,11 +220,21 @@ class IFR1000ScaleResearch:
         
         grad_df = pd.DataFrame(gradient_results)
         
+<<<<<<< HEAD
         z1_ret = df_is[df_is['zone'] == 1]['ret_20'].values
         z7_ret = df_is[df_is['zone'] == 7]['ret_20'].values
         delta_20 = self.cliff_delta(z7_ret, z1_ret)
         print(f"  Cliff's Delta (Z7 vs Z1) H20: {delta_20:.4f}")
         
+=======
+        # 4.1.3 Cliff's Delta (Z1 vs Z7)
+        z1_ret = df_is[df_is['zone'] == 1]['ret_20'].values
+        z7_ret = df_is[df_is['zone'] == 7]['ret_20'].values
+        delta_20 = self.cliff_delta(z7_ret, z1_ret) # Positivo se Z7 > Z1
+        print(f"  Cliff's Delta (Z7 vs Z1) H20: {delta_20:.4f}")
+        
+        # 3.2 Análise Ponto a Ponto (Plot)
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         self.plot_point_to_point(df_is, symbol)
         
         return main_table, kw_df, grad_df
@@ -188,6 +243,10 @@ class IFR1000ScaleResearch:
         """Gera plots de granularidade IFR vs Retorno."""
         os.makedirs("notebooks/ifr/plots_scale", exist_ok=True)
         
+<<<<<<< HEAD
+=======
+        # Arredondar IFR para inteiros para agrupar
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         df_copy = df.copy()
         df_copy['ifr_int'] = df_copy['ifr'].round()
         
@@ -206,12 +265,26 @@ class IFR1000ScaleResearch:
 
     def run_alternatives(self, df_is, symbol):
         """Parte 5.4 - Compara com Z-score e MA."""
+<<<<<<< HEAD
         ma = df_is['close'].rolling(1000).mean()
         std = df_is['close'].rolling(1000).std()
         z_score = (df_is['close'] - ma) / std
         ma_dist = df_is['close'] / ma - 1
         
         h = 20
+=======
+        # Alt 1: Z-score Preço (1000)
+        # Usamos uma janela de 1000 para ser justo
+        ma = df_is['close'].rolling(1000).mean()
+        std = df_is['close'].rolling(1000).std()
+        z_score = (df_is['close'] - ma) / std
+        
+        # Alt 2: Distância MA(1000) %
+        ma_dist = df_is['close'] / ma - 1
+        
+        h = 20
+        # Alinhamento
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         valid_idx = z_score.dropna().index
         target_ret = df_is.loc[valid_idx, f'ret_{h}']
         
@@ -238,6 +311,10 @@ class IFR1000ScaleResearch:
             
             is_df, val_df, oos_df = self.split_data(df)
             
+<<<<<<< HEAD
+=======
+            # --- IN-SAMPLE ---
+>>>>>>> 13985eb (sync: prepare local for remote pull)
             main_table, kw_df, grad_df = self.run_is_analysis(is_df, symbol)
             all_main.append(main_table)
             all_kw.append(kw_df)
@@ -246,17 +323,43 @@ class IFR1000ScaleResearch:
             alts = self.run_alternatives(is_df, symbol)
             all_alts.append(alts)
             
+<<<<<<< HEAD
             val_main, val_kw, val_grad = self.run_is_analysis(val_df, symbol)
             
+=======
+            # --- VALIDAÇÃO ---
+            print(f"  Validando no VAL...")
+            val_main, val_kw, val_grad = self.run_is_analysis(val_df, symbol)
+            
+            # Critério 5.1: Direção do gradiente H20 e H100 preservada
+>>>>>>> 13985eb (sync: prepare local for remote pull)
             is_rho_20 = grad_df[grad_df['horizon'] == 20]['spearman_rho'].values[0]
             val_rho_20 = val_grad[val_grad['horizon'] == 20]['spearman_rho'].values[0]
             
             pass_val = (np.sign(is_rho_20) == np.sign(val_rho_20)) and (abs(val_rho_20) > 0.01)
+<<<<<<< HEAD
             
             if pass_val:
                 oos_main, oos_kw, oos_grad = self.run_is_analysis(oos_df, symbol)
                 oos_main.to_csv(f"notebooks/ifr/ifr_1000_scale_oos_{symbol}.csv", index=False)
 
+=======
+            print(f"    Rho H20 - IS: {is_rho_20:.4f} | VAL: {val_rho_20:.4f}")
+            print(f"    Resultado Validação: {'PASSOU' if pass_val else 'FALHOU'}")
+            
+            # --- OUT-OF-SAMPLE ---
+            if pass_val:
+                print(f"  Abrindo OOS para {symbol}...")
+                oos_main, oos_kw, oos_grad = self.run_is_analysis(oos_df, symbol)
+                oos_rho_20 = oos_grad[oos_grad['horizon'] == 20]['spearman_rho'].values[0]
+                print(f"    Rho H20 - OOS: {oos_rho_20:.4f}")
+                # Salvar OOS individual
+                oos_main.to_csv(f"notebooks/ifr/ifr_1000_scale_oos_{symbol}.csv", index=False)
+            else:
+                print(f"  OOS mantido lacrado para {symbol}.")
+
+        # Salvar Consolidados IS
+>>>>>>> 13985eb (sync: prepare local for remote pull)
         if all_main:
             pd.concat(all_main).to_csv("notebooks/ifr/ifr_1000_scale_is_main.csv", index=False)
             pd.concat(all_kw).to_csv("notebooks/ifr/ifr_1000_scale_is_kw.csv", index=False)
@@ -266,3 +369,7 @@ class IFR1000ScaleResearch:
 if __name__ == "__main__":
     research = IFR1000ScaleResearch()
     research.run_study()
+<<<<<<< HEAD
+=======
+    print("\nESTUDO 3 CONCLUÍDO. VERIFIQUE notebooks/ifr/ plots e csvs.")
+>>>>>>> 13985eb (sync: prepare local for remote pull)

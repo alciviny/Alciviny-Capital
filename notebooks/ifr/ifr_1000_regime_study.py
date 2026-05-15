@@ -122,7 +122,11 @@ def run_ifr_1000_study(timeframe="15"):
 
     study_df['territory'] = study_df['ifr_1000'].apply(categorize_territory)
     
+<<<<<<< HEAD
     # Debug: Ver distribution
+=======
+    # Debug: Ver distribuição
+>>>>>>> 13985eb (sync: prepare local for remote pull)
     logger.info(f"IFR 1000 Stats: Min={study_df['ifr_1000'].min():.2f}, Max={study_df['ifr_1000'].max():.2f}")
     logger.info(f"Contagem por Território:\n{study_df['territory'].value_counts()}")
     
@@ -227,4 +231,9 @@ def run_ifr_1000_study(timeframe="15"):
     logger.info(f"Estudo concluído. Resultados salvos em: {report_path}")
 
 if __name__ == "__main__":
+<<<<<<< HEAD
+=======
+    # Verificar se hurst_score existe no MetaRegimeDetector.detect
+    # Vou rodar uma pequena inspeção antes se necessário, mas o script acima já loga as colunas.
+>>>>>>> 13985eb (sync: prepare local for remote pull)
     run_ifr_1000_study(timeframe="15")

@@ -13,7 +13,11 @@ O IFR 200 não possui um centro fixo universal. O nível 50 é apenas uma refer�
 
 ## 2. Por que isso elimina o Overfit?
 Ao abandonar números como "57" ou "53", removemos o viés do observador.
+<<<<<<< HEAD
 - **Auto-Ajuste**: Se o WIN$ entrar em uma super-tendência onde o IFR não cai abaixo de 55, o **RE** subirá naturally para 57. O sistema "descobre" o novo centro sem intervenção humana.
+=======
+- **Auto-Ajuste**: Se o WIN$ entrar em uma super-tendência onde o IFR não cai abaixo de 55, o **RE** subirá naturalmente para 57. O sistema "descobre" o novo centro sem intervenção humana.
+>>>>>>> 13985eb (sync: prepare local for remote pull)
 - **Imunidade Temporal**: Se o comportamento do ativo mudar no próximo ano, o RE se adaptará dinamicamente, mantendo a estratégia atualizada sem necessidade de re-otimização (curva de ajuste).
 
 ## 3. Formulação Matemática do Gatilho Dinâmico
