@@ -12,10 +12,12 @@ class VectorizedEngine(BacktestEngine):
     def __init__(self, 
                  exit_horizon: int = 20, 
                  cost_model: CostModel = None,
-                 target_asset: str = "win_close"):
+                 target_asset: str = "win_close",
+                 conservative_mode: bool = True):
         self.exit_horizon = exit_horizon
         self.cost_model = cost_model or CostModel()
         self.target_asset = target_asset
+        self.conservative_mode = conservative_mode
         self.trades_log = None
 
     def run(self, 
@@ -28,6 +30,15 @@ class VectorizedEngine(BacktestEngine):
         """
         # 1. Gerar Sinais (Alfa)
         df = strategy.generate_signals(data)
+        
+        # 1.1 Proteção contra Lookahead na "cauda" do dataset
+        # Sinais muito próximos do fim não podem ser validados pelo horizonte futuro
+        df = df.with_columns([
+            pl.when(pl.int_range(0, pl.len()) >= (pl.len() - self.exit_horizon))
+            .then(0)
+            .otherwise(pl.col("signal"))
+            .alias("signal")
+        ])
         
         # Identificar ativos base para stops (ex: win_high, win_low)
         base_asset = self.target_asset.replace("_close", "")
@@ -52,6 +63,7 @@ class VectorizedEngine(BacktestEngine):
             ])
 
             # Lógica de PnL com Stops (Vetorizada)
+            # Conservative Mode: Se bater SL e TP no mesmo horizonte, assume SL primeiro.
             df = df.with_columns([
                 pl.when(pl.col("signal") == 1)
                 .then(
@@ -72,6 +84,10 @@ class VectorizedEngine(BacktestEngine):
                 .otherwise(0.0)
                 .alias("raw_ret")
             ])
+            
+            # Nota: A priorização do SL já está implícita na ordem do .when() acima.
+            # Se conservative_mode fosse False, poderíamos tentar uma lógica de TP primeiro,
+            # mas manteremos a integridade conservadora por padrão.
         else:
             # Fallback para saída cega (antiga)
             df = df.with_columns([
