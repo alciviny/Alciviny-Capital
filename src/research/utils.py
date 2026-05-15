@@ -4,11 +4,10 @@ import polars as pl
 import os
 import json
 from datetime import datetime
-from src.research.config import IFR_PERIOD, EXPERIMENTS_DIR, SIGNAL_COLS, DATA_STORAGE
+from src.core.config import IFR_PERIOD, SIGNAL_COLS
+from src.core.paths import EXPERIMENTS_DIR, STORAGE_DIR as DATA_STORAGE, get_data_path
 
-def get_data_path(symbol: str, timeframe: str) -> str:
-    """Retorna o caminho padronizado para arquivos parquet de dados."""
-    return os.path.join(DATA_STORAGE, f"{symbol}_{timeframe}.parquet")
+# get_data_path já importado de src.core.paths
 
 def calculate_rsi_200(prices: np.ndarray, period: int = IFR_PERIOD) -> np.ndarray:
     """Cálculo padronizado do IFR (Wilder/EWM)"""

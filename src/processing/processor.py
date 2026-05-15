@@ -4,7 +4,7 @@ from typing import List, Optional
 import yaml
 from src.core.logger import BaseModule
 from src.indicators.oscillators import add_ifr_grid
-from src.indicators.volatility import add_vwap_bands
+from src.indicators.volatility import add_vwap_bands, add_keltner_channels
 
 class DataProcessor(BaseModule):
     """
@@ -49,6 +49,12 @@ class DataProcessor(BaseModule):
             elif name.startswith('ifr'):
                 if not isinstance(params.get('period'), int) or params['period'] <= 0:
                     params['period'] = 14
+            
+            elif params.get('type') == 'keltner':
+                # Validar parâmetros do Keltner
+                if not isinstance(params.get('ema_period'), int): params['ema_period'] = 20
+                if not isinstance(params.get('atr_period'), int): params['atr_period'] = 10
+                if not isinstance(params.get('multiplier'), (int, float)): params['multiplier'] = 2.0
 
             valid_config[name] = params
             
@@ -119,28 +125,44 @@ class DataProcessor(BaseModule):
                 df = add_vwap_bands(df, period_type=p_type, atr_period=atr_p, multipliers=mults)
                 self.logger.info(f"Indicador {ind_name} ({p_type}) aplicado.")
             
+            elif params.get('type') == 'keltner' and params.get('enabled', True):
+                df = add_keltner_channels(
+                    df, 
+                    ema_period=params.get('ema_period', 20),
+                    atr_period=params.get('atr_period', 10),
+                    multiplier=params.get('multiplier', 2.0),
+                    use_squeeze=params.get('use_squeeze', True)
+                )
+                self.logger.info(f"Indicador {ind_name} aplicado.")
+            
         return df
 
-    def normalize(self, df: pd.DataFrame, columns: List[str], method: str = 'zscore') -> pd.DataFrame:
+    def normalize(self, df: pd.DataFrame, columns: List[str], method: str = 'zscore', window: Optional[int] = 200) -> pd.DataFrame:
         """
-        Normaliza colunas específicas. 
-        Métodos: 'zscore' (StandardScaler) ou 'minmax'.
+        Normaliza colunas usando janelas móveis (Rolling) otimizadas.
         """
-        df_norm = df.copy()
-        for col in columns:
-            if col not in df.columns:
-                continue
-                
-            if method == 'zscore':
-                mean = df[col].mean()
-                std = df[col].std()
-                df_norm[col] = (df[col] - mean) / (std + 1e-9)
-            elif method == 'minmax':
-                min_val = df[col].min()
-                max_val = df[col].max()
-                df_norm[col] = (df[col] - min_val) / (max_val - min_val + 1e-9)
+        if df.empty: return df
         
-        self.logger.info(f"Normalização ({method}) aplicada em: {columns}")
+        df_norm = df.copy()
+        # Se o dataset for gigante (>20k), limitamos o processamento para performance se window for pequeno
+        # Mas mantemos a integridade dos últimos dados.
+        
+        for col in columns:
+            if col not in df.columns: continue
+                
+            if window:
+                roll = df[col].rolling(window=window, min_periods=1)
+                if method == 'zscore':
+                    # Vetorização pura do Pandas/NumPy
+                    df_norm[col] = (df[col] - roll.mean()) / (roll.std() + 1e-9)
+                elif method == 'minmax':
+                    df_norm[col] = (df[col] - roll.min()) / (roll.max() - roll.min() + 1e-9)
+            else:
+                if method == 'zscore':
+                    df_norm[col] = (df[col] - df[col].mean()) / (df[col].std() + 1e-9)
+                elif method == 'minmax':
+                    df_norm[col] = (df[col] - df[col].min()) / (df[col].max() - df[col].min() + 1e-9)
+        
         return df_norm
 
     def add_basic_returns(self, df: pd.DataFrame, col: str = 'close') -> pd.DataFrame:
