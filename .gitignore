@@ -25,3 +25,8 @@ data_storage/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Generated reports and scratchpads
+scratch/
+results/
+*.pdf

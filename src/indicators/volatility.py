@@ -338,3 +338,29 @@ def calculate_keltner_pl(high: str, low: str, close: str,
         upper.alias("keltner_upper"),
         lower.alias("keltner_lower")
     ]
+
+def calculate_hurst_pl(series_col: str, window: int = 100) -> pl.Expr:
+    """
+    Expoente de Hurst para detecção de persistência em Polars.
+    H > 0.5: Tendência (Persistente)
+    H < 0.5: Reversão à média (Anti-persistente)
+    H = 0.5: Movimento aleatório
+    """
+    def _hurst_rs(vals: pl.Series) -> float:
+        # Converter para numpy explicitamente para evitar conflitos de axis no all()
+        x = vals.to_numpy()
+        if len(x) < 20 or np.all(x == x[0]):
+            return 0.5
+        
+        # Calcular desvios e range acumulado
+        mean = np.mean(x)
+        z = np.cumsum(x - mean)
+        r = np.max(z) - np.min(z)
+        s = np.std(x)
+        
+        if s == 0: return 0.5
+        
+        # Rescaled Range R/S
+        return np.log(r / s + 1e-9) / np.log(len(x) + 1e-9)
+
+    return pl.col(series_col).rolling_map(_hurst_rs, window_size=window).alias("hurst_exponent")
